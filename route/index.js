@@ -4,16 +4,25 @@ const router = express.Router();
 const Meal =require('../model/menu')
 const Order = require('../model/order')
 
+require('dotenv').config()
+
+const credentials = {
+  apiKey: process.env.AFRICASTALKING_API_KEY,
+  username: process.env.AFRICASTALKING_USERNAME,
+};
+
+const Africastalking = require("africastalking")(credentials);
+
+const sendSms = Africastalking.SMS;
   //Creating menu
 router.post('/create', async (req, res) => {
   const menu = new Meal(req.body);
-  console.log(menu)
   
   try {
   await menu.save();
-  res.status(200).send({ status: "201", message: "OK", data: menu });
+  res.status(200).send({ status: status, message: "OK", data: menu });
   } catch (error) {
-  res.status(500).send(error);
+  res.send(error);
   }
   
   });
@@ -25,13 +34,23 @@ router.get('/list', async(req, res) => {
   //create order
 router.post('/createOrder', async(req, res) => {
   const order = new Order(req.body);
-  console.log(order)
   
   try {
   await order.save();
-  res.status(200).send({ status: "201", message: "OK", data: order });
+  sendSms
+      .send({
+    to: req.body.userPhoneNumber,
+    message: `We're glad you ordered from us.
+     You will receive your order in a few minutes,be patient.`,
+  })
+      .then((res) => {
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  res.status(200).send({ status: status, message: "OK", data: order });
   } catch (error) {
-  res.status(500).send(error);
+  res.send(error);
   }
   
   });
