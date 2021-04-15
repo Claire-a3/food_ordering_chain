@@ -17,5 +17,10 @@ router.post('/create', async (req, res) => {
   }
   
   });
+  //Gettin menu list
+router.get('/list', async(req, res) => {
+  const meal = await Meal.find({});
+  res.send(meal)
+  })
 
 module.exports = router;
